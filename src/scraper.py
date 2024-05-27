@@ -21,6 +21,7 @@ class Ad(BaseModel):
     brand: str | None
     model: str | None
     id: int | None
+    link: str | None
     safety_elements: List[str] | None
     is_leasing: bool | None
 
@@ -121,7 +122,7 @@ def get_leasing(soup):
 
 
 files_list = [file for file in ads_folder.iterdir() if file.is_file()]
-
+ad_link = "https://www.finn.no/car/used/ad.html?finnkode="
 ad_lst = []
 for file in files_list:
     with open(file) as f:
@@ -135,6 +136,7 @@ for file in files_list:
             brand=get_brand_type_id(soup)[0],
             model=get_brand_type_id(soup)[1],
             id=int(file.stem),
+            link=ad_link + str(file.stem),
             safety_elements=get_safty_elements(soup),
             is_leasing=get_leasing(soup),
         )
@@ -145,5 +147,9 @@ for file in files_list:
         print(file)
 
 ads_df = pd.DataFrame([ad.model_dump() for ad in ad_lst])
+for index, row in ads_df.iterrows():
+    if row["tldr"]:
+        if "Touring" in row["tldr"]:
+            ads_df.at[index, "model"] = "Corolla Touring"
 
 ads_df.to_parquet(data_path / "ads.parquet")

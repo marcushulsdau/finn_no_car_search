@@ -105,11 +105,11 @@ def filter_data(data, filters):
         filtered_df = filtered_df[filtered_df["model"].isin(selected_models)]
 
     if selected_safety_elements:
-        filtered_df = filtered_df[
-            filtered_df["safety_elements"].apply(
-                lambda x: isinstance(x, list)
-                and all(item in x for item in selected_safety_elements)
-            )
+        selected_set = set(selected_safety_elements)
+        filtered_df = filtered_df.dropna(subset=["safety_elements"]).loc[
+            filtered_df["safety_elements"]
+            .dropna()
+            .apply(lambda x: selected_set.issubset(set(x)))
         ]
 
     return filtered_df
@@ -180,39 +180,26 @@ x_axis, y_axis, color_axis, show_scatter, show_regression, degree = plot_setting
 if color_axis and filtered_df[color_axis].nunique() <= 12:
     filtered_df[color_axis] = filtered_df[color_axis].astype("category")
 
-# Add hyperlink to hover data
-filtered_df["link"] = filtered_df["id"].apply(
-    lambda x: f'<a href="https://www.finn.no/car/used/ad.html?finnkode={x}" target="_blank">open ad</a>'
-)
-
 # Plotly chart
-hover_template = (
-    "<b>Year:</b> %{customdata[0]}<br>"
-    "<b>KM:</b> %{x}<br>"
-    "<b>Price:</b> %{y}<br>"
-    "<b>Link:</b> %{customdata[1]}<extra></extra>"
-)
+hover_data = {
+    "model_year": True,
+    "model_km": True,
+    "price": True,
+    "tldr": True,
+    "brand": True,
+    "model": True,
+    "id": True,
+    "safety_elements": True,
+    "is_leasing": True,
+}
 
 if show_scatter:
     fig = px.scatter(
-        filtered_df,
-        x=x_axis,
-        y=y_axis,
-        color=color_axis,
-        hover_data={"model_year": True, "link": False},
-        custom_data=["model_year", "link"],
+        filtered_df, x=x_axis, y=y_axis, color=color_axis, hover_data=hover_data
     )
 else:
-    fig = px.scatter(
-        filtered_df,
-        x=x_axis,
-        y=y_axis,
-        hover_data={"model_year": True, "link": False},
-        custom_data=["model_year", "link"],
-    )
+    fig = px.scatter(filtered_df, x=x_axis, y=y_axis, hover_data=hover_data)
     fig.data = []
-
-fig.update_traces(hovertemplate=hover_template)
 
 # Add regression lines if selected
 if show_regression:
@@ -247,3 +234,25 @@ fig.update_yaxes(range=[filtered_df[y_axis].min(), filtered_df[y_axis].max()])
 
 # Render the plot with full container width
 st.plotly_chart(fig, use_container_width=True)
+
+# Add paginated and sortable table
+st.write("Filtered Data")
+
+st.data_editor(
+    filtered_df[
+        [
+            "brand",
+            "model",
+            "model_year",
+            "model_km",
+            "price",
+            "tldr",
+            "safety_elements",
+            "link",
+        ]
+    ],
+    column_config={
+        "link": st.column_config.LinkColumn("link", display_text="Link to Ad"),
+    },
+    hide_index=True,
+)

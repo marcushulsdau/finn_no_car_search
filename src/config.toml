@@ -9,6 +9,9 @@ model_3 = "1.8078.2000501"
 model_s = "1.8078.2000138"
 model_x = "1.8078.2000379"
 model_y = "1.8078.2000555"
+e_niro = "1.777.2000459"
+x_ceed = "1.777.2000526"
+niro = "1.777.2000392"
 
 [scraper]
 basic_finn_url = "https://www.finn.no/car/used/search.html?sales_form=1&model="
