@@ -13,6 +13,7 @@ e_niro = "1.777.2000459"
 x_ceed = "1.777.2000526"
 niro = "1.777.2000392"
 i3 = "1.749.2000264"
+duster = "1.8079.2000191"
 
 [scraper]
 basic_finn_url = "https://www.finn.no/car/used/search.html?sales_form=1&model="
