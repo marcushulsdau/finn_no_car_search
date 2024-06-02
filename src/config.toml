@@ -18,6 +18,7 @@ sportage  = "1.777.1119"
 inoniq_5 = "1.772.2000546"
 ioniq = "1.772.2000393"
 kona = "1.772.2000438"
+polestar_2 = "1.8102.8370"
 
 [scraper]
 basic_finn_url = "https://www.finn.no/car/used/search.html?sales_form=1&model="
